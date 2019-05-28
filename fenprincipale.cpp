@@ -13,6 +13,12 @@ FenPrincipale::FenPrincipale()
     QGroupBox *groupBox1 = new QGroupBox("Définition de la classe", this);
 
     nom = new QLineEdit;
+    lineNom = new QLineEdit;
+    lineNom->setReadOnly(true);
+    QPalette palette;
+    palette.setColor(QPalette::Base, Qt::gray);
+    lineNom->setPalette(palette);
+
     classe_mere = new QLineEdit;
     classe_mere->setInputMask(QString("AAAAAAAAAAAAAAAAAA"));
 
@@ -20,7 +26,12 @@ FenPrincipale::FenPrincipale()
     form->addRow("Nom :", nom);
     form->addRow("Classe mère :" ,classe_mere);
 
-    groupBox1->setLayout(form);
+    QGridLayout * grid = new QGridLayout;
+
+    grid->addLayout(form, 0, 0);
+    grid->addWidget(lineNom, 1, 0);
+
+    groupBox1->setLayout(grid);
 
     QGroupBox *groupBox2 = new QGroupBox("Options", this);
     option1 = new QCheckBox("Protégér le header contre les inclusions multiples");
@@ -44,6 +55,9 @@ FenPrincipale::FenPrincipale()
 
     auteur = new QLineEdit;
     date = new QDateEdit;
+    gpl = new QCheckBox("Ajouter La GPL");
+    list = new QListWidget;
+    QListWidgetItem *item1 = new QListWidgetItem;
     date->setDisplayFormat(QString("dd/MM/yyyy"));
     date->setMaximumDate(QDate(2019, 12, 31));
     date->setDate(QDate(2010, 01, 01));
@@ -54,7 +68,13 @@ FenPrincipale::FenPrincipale()
     form2->addRow("Auteur :", auteur);
     form2->addRow("Date de création :", date);
     form2->addRow("Rôle de la classe :", text);
-    groupe_commentaire->setLayout(form2);
+
+    QVBoxLayout *vBox2 = new QVBoxLayout;
+    vBox2->addLayout(form2);
+    vBox2->addWidget(gpl);
+    vBox2->addWidget(list);
+
+    groupe_commentaire->setLayout(vBox2);
 
 
     m_quitter = new QPushButton("Quitter");
@@ -74,7 +94,7 @@ FenPrincipale::FenPrincipale()
 
     this->setLayout(initiaLayout);
 
-    QObject::connect(nom, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(genereCode2()));
+    connect(nom, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(modifLine()));
     QObject::connect(m_generer, SIGNAL(clicked()), this, SLOT(genereCode()));
     QObject::connect(m_quitter, SIGNAL(clicked()), qApp, SLOT(quit()));
 }
@@ -82,14 +102,16 @@ FenPrincipale::FenPrincipale()
 FenPrincipale::~FenPrincipale()
 {
     delete nom;
+    delete lineNom;
     delete classe_mere;
-    QCheckBox option1;
-    QCheckBox option2;
-    QCheckBox option3;
-    QGroupBox groupe_commentaire;
-    QLineEdit auteur;
-    QDateEdit date;
-    QTextEdit text;
+    delete option1;
+    delete option2;
+    delete option3;
+    delete groupe_commentaire;
+    delete gpl;
+    delete auteur;
+    delete date;
+    delete text;
     delete m_quitter;
     delete m_generer;
 }
@@ -111,7 +133,23 @@ void FenPrincipale::genereCode()
         else
             code +="\n";
 
-        code +="\nDate de création : " + date->date().toString() +"\n\n";
+        code +="\nDate de création : " + date->date().toString() +"\n";
+
+        if(gpl->isChecked() == true)
+        {
+            code += "\nThis program is free software: you can redistribute it and/or modify\n" ;
+            code += "it under the terms of the GNU General Public License as published by\n";
+            code += "the Free Software Foundation, either version 3 of the License, or\n";
+            code += "(at your option) any later version.\n";
+
+            code += "This program is distributed in the hope that it will be useful,\n";
+            code += "but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+            code += "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+            code += "GNU General Public License for more details.\n";
+
+            code += "You should have received a copy of the GNU General Public License\n";
+            code += "along with this program.  If not, see <https://www.gnu.org/licenses/>.\n";
+        }
 
         code += text->toPlainText() + "\n*/\n";
     }
@@ -131,7 +169,9 @@ void FenPrincipale::genereCode()
 
     code +="{\n";
     code +="public :\n";
-    code +="\t"+ nom->text() + "();\n";
+
+    if(option2->isChecked()==true)
+        code +="\t"+ nom->text() + "();\n";
 
     if(option3->isChecked()==true)
         code += "\t~" + nom->text() + "();\n";
@@ -141,15 +181,20 @@ void FenPrincipale::genereCode()
     code +="private :\n\n";
     code +="};\n";
 
-    code += "\n#endif\n";
+    if(option1->isChecked()==true)
+        code += "\n#endif\n";
 
     FenCodeGenere *z = new FenCodeGenere(this, code);
     z->exec();
 }
 
-void FenPrincipale::genereCode2()
+void FenPrincipale::modifLine()
 {
-    QString code;
-    code+=nom->text();
-    FenCodeGenere *z = new FenCodeGenere(this, code);
+
+    lineNom->setText(QString("HEADER_") + nom->text().toUpper());
+
+    if(nom->text().isEmpty()==true)
+        lineNom->clear();
 }
+
+
