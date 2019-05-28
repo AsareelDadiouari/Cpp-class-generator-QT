@@ -11,7 +11,7 @@ class FenCodeGenere : public QDialog
 
 public:
     FenCodeGenere(const QWidget *parent, QString &code);
-    ~FenCodeGenere();
+    virtual ~FenCodeGenere();
 
 private:
     QTextEdit *codeGen;
