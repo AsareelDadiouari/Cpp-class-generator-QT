@@ -12,13 +12,14 @@ class FenPrincipale : public QWidget
 
 public:
     FenPrincipale();
-    ~FenPrincipale();
+    virtual ~FenPrincipale();
 public slots:
     void genereCode();
-    void genereCode2();
+    void modifLine();
 
 private:
     QLineEdit *nom;
+    QLineEdit *lineNom;
     QLineEdit *classe_mere;
 
     QCheckBox *option1;
@@ -27,9 +28,12 @@ private:
 
     QGroupBox *groupe_commentaire;
 
+
     QLineEdit *auteur;
     QDateEdit *date;
     QTextEdit *text;
+    QCheckBox *gpl;
+    QListWidget *list;
 
     QPushButton *m_generer;
     QPushButton *m_quitter;
