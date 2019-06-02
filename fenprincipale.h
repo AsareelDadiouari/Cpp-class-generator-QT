@@ -12,9 +12,12 @@ class FenPrincipale : public QWidget
 
 public:
     FenPrincipale();
-    virtual ~FenPrincipale();
+    QString getNom(){return nom->text();}
+
+
 public slots:
     void genereCode();
+    void popUp();
     void modifLine();
 
 private:
@@ -22,18 +25,20 @@ private:
     QLineEdit *lineNom;
     QLineEdit *classe_mere;
 
-    QCheckBox *option1;
-    QCheckBox *option2;
-    QCheckBox *option3;
+    QCheckBox *option1; // inclusion header
+    QCheckBox *option2; // contrcuteur
+    QCheckBox *option3; //Destructeur
+    QPushButton *ajouterAttribut;
+    QVector<QString> tabNomAttribut;
+    QVector<QString> tabTypeAttribut;
+
 
     QGroupBox *groupe_commentaire;
-
 
     QLineEdit *auteur;
     QDateEdit *date;
     QTextEdit *text;
     QCheckBox *gpl;
-    QListWidget *list;
 
     QPushButton *m_generer;
     QPushButton *m_quitter;
